@@ -1,7 +1,4 @@
-
 #include "shell.h"
-
-
 
 /* Function prototypes */
 void loop(void);
@@ -78,7 +75,10 @@ return (line);
 }
 
 
-/* Split a line function */
+/** Split a line function
+ *  @line
+ * tokenify and check for error
+ */
 char **split_line(char *line)
 {
 int bufsize = BUFSIZE;
@@ -86,30 +86,28 @@ int position = 0;
 char **tokens = malloc(bufsize * sizeof(char *));
 char *token;
 
-    /* Check for allocation error */
+   
 if (!tokens)
 {
 perror("malloc");
 exit(1);
 }
 
-    /* Get the first token from the line */
 token = strtok(line, DELIM);
 
-    /* Loop through the rest of the tokens */
 while (token != NULL)
 {
-        /* Store the token in the array */
+      
 tokens[position] = token;
 position++;
 
-        /* Check if the array is full and resize if needed */
+    
 if (position >= bufsize)
 {
 bufsize += BUFSIZE;
 tokens = realloc(tokens, bufsize * sizeof(char *));
             
-            /* Check for allocation error */
+           
  if (!tokens)
  {
  perror("realloc");
@@ -117,33 +115,35 @@ tokens = realloc(tokens, bufsize * sizeof(char *));
  }
  }
 
-        /* Get the next token from the line */
+        
 token = strtok(NULL, DELIM);
 }
 
-    /* Terminate the array with a NULL pointer */
+    
 tokens[position] = NULL;
 
-    /* Return the array of tokens */
+    
 return (tokens);
 }
 
 
 
-
-
 /** Main -  Execute a line function
  *  @line - a pointer to a line
+ *  @args-convert char to string and pass an argument
  *  Return the exit status of the child process
  */
 int execute(char *line)
 {
-char *args[2];
+char **args;
 pid_t pid;
 int status;
 
-args[0] = strtok(line, "\n");
-args[1] = NULL;
+args = split_line(line); 
+
+//add this part to pass an argument
+int num = atoi(args[1]); //convert char to int
+printf("Int version of 1st arg: %d\n", num); //print it for testing
 
 pid = fork();
 
