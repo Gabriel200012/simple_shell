@@ -101,32 +101,26 @@ token = strtok(line, DELIM);
    
 while (token != NULL)
 {
-        /* Store the token in the array */
+        
 tokens[position] = token;
 position++;
 
-        /* Check if the array is full and resize if needed */
 if (position >= bufsize)
 {
 bufsize += BUFSIZE;
 tokens = realloc(tokens, bufsize * sizeof(char *));
             
-            /* Check for allocation error */
- if (!tokens)
- {
- perror("realloc");
- exit(1);
- }
- }
-
-        /* Get the next token from the line */
+if (!tokens)
+{
+perror("realloc");
+exit(1);
+}
+}
 token = strtok(NULL, DELIM);
 }
 
-    /* Terminate the array with a NULL pointer */
 tokens[position] = NULL;
 
-    /* Return the array of tokens */
 return (tokens);
 }
 
@@ -141,24 +135,18 @@ char full_path[BUFSIZE]; //changed to an array instead of a pointer
 int i; 
 
     
-dirs = split_line(getenv("PATH")); //combined two lines into one
+dirs = split_line(getenv("PATH")); 
 
-    //loop through the directories and check if command exists in any of them
 for (i = 0; dirs[i] != NULL; i++)
 {
-        //copy the directory and command to full_path using snprintf
 snprintf(full_path, BUFSIZE, "%s/%s", dirs[i], command);
 
-        //check if full_path is an executable file using access function
 if (access(full_path, X_OK) == 0)
 {
-            //found the command, free dirs and return full_path as a string
 free(dirs);
-return (strdup(full_path)); //use strdup to return a copy of full_path
+return (strdup(full_path)); 
 }
 }
-
-    //did not find the command, free dirs and return NULL
 free(dirs);
 return NULL;
 }
@@ -174,14 +162,14 @@ char **args;
 
 args = split_line(line);
 
-if (strcmp(args[0], "exit") == 0) //compare the first argument with "exit"
+if (strcmp(args[0], "exit") == 0) 
 {
-if (args[1] == NULL) //no second argument, exit with status 0
+if (args[1] == NULL) 
 {
 free(args);
 exit(0);
 }
-else //second argument exists, try to convert it to an integer and exit with that status
+else 
 {
 int status = atoi(args[1]);
 free(args);
@@ -189,52 +177,43 @@ exit(status);
 }
 }
 
-free(args); //not exit, free args and return 1 to continue looping
+free(args); 
 return (1);
 }
 
-
-/* A function that executes setenv or unsetenv builtin commands */
 int execute_env(char **args)
 {
-    /* Check if the first argument is setenv or unsetenv */
-    if (strcmp(args[0], "setenv") == 0)
-    {
-        /* Check if there are two or three arguments */
-        if (args[1] == NULL || args[2] == NULL || args[3] != NULL)
-        {
-            /* Print an error message and return -1 */
-            fprintf(stderr, "setenv: usage: setenv name value [overwrite]\n");
-            return -1;
-        }
-        else
-        {
-            /* Convert the third argument to an integer */
-            int overwrite = atoi(args[3]);
-            /* Call setenv with the given arguments and return its result */
-            return setenv(args[1], args[2], overwrite);
-        }
-    }
-    else if (strcmp(args[0], "unsetenv") == 0)
-    {
-        /* Check if there is one argument */
-        if (args[1] == NULL || args[2] != NULL)
-        {
-            /* Print an error message and return -1 */
-            fprintf(stderr, "unsetenv: usage: unsetenv name\n");
-            return -1;
-        }
-        else
-        {
-            /* Call unsetenv with the given argument and return its result */
-            return unsetenv(args[1]);
-        }
-    }
-    else
-    {
-        /* Not a valid builtin command, return -1 */
-        return -1;
-    }
+if (strcmp(args[0], "setenv") == 0)
+{
+if (args[1] == NULL || args[2] == NULL || args[3] != NULL)
+{
+            
+fprintf(stderr, "setenv: usage: setenv name value [overwrite]\n");
+return -1;
+}
+else
+{
+int overwrite = atoi(args[3]);
+return setenv(args[1], args[2], overwrite);
+}
+}
+else if (strcmp(args[0], "unsetenv") == 0)
+{
+if (args[1] == NULL || args[2] != NULL)
+{
+fprintf(stderr, "unsetenv: usage: unsetenv name\n");
+return -1;
+}
+else
+{
+         
+return unsetenv(args[1]);
+}
+}
+else
+{
+return -1;
+}
 }
 
 
