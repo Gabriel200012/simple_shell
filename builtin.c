@@ -13,7 +13,7 @@ int check_exit(char *line); //added this prototype
  * @argv - void
  * Run the main loop and return 0
  */
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
 (void)argc;
 (void)argv;
@@ -95,39 +95,33 @@ if (!tokens)
 perror("malloc");
 exit(1);
 }
-
-    
-token = strtok(line, DELIM);
-
    
+token = strtok(line, DELIM);
+  
 while (token != NULL)
 {
-        /* Store the token in the array */
 tokens[position] = token;
 position++;
 
-        /* Check if the array is full and resize if needed */
+      
 if (position >= bufsize)
 {
 bufsize += BUFSIZE;
 tokens = realloc(tokens, bufsize * sizeof(char *));
             
-            /* Check for allocation error */
- if (!tokens)
- {
- perror("realloc");
- exit(1);
- }
- }
+if (!tokens)
+{
+perror("realloc");
+exit(1);
+}
+}
 
-        /* Get the next token from the line */
 token = strtok(NULL, DELIM);
 }
 
-    /* Terminate the array with a NULL pointer */
+   
 tokens[position] = NULL;
 
-    /* Return the array of tokens */
 return (tokens);
 }
 
@@ -138,67 +132,63 @@ return (tokens);
 char *find_path(char *command)
 {
 char **dirs; 
-char full_path[BUFSIZE]; //changed to an array instead of a pointer
+char full_path[BUFSIZE]; 
 int i; 
 
     
-dirs = split_line(getenv("PATH")); //combined two lines into one
-
-    //loop through the directories and check if command exists in any of them
+dirs = split_line(getenv("PATH"));
+    
 for (i = 0; dirs[i] != NULL; i++)
 {
-        //copy the directory and command to full_path using snprintf
+       
 snprintf(full_path, BUFSIZE, "%s/%s", dirs[i], command);
 
-        //check if full_path is an executable file using access function
+     
 if (access(full_path, X_OK) == 0)
 {
-            //found the command, free dirs and return full_path as a string
+    
 free(dirs);
-return (strdup(full_path)); //use strdup to return a copy of full_path
+return (strdup(full_path)); 
 }
 }
 
-    //did not find the command, free dirs and return NULL
+    
 free(dirs);
 return NULL;
 }
 
-/** Check exit function - check if the line is "exit" or "exit status"
-* @line - a pointer to a line
-* Return 0 if exit is found, otherwise return 1 
-*/ //added this function
+/** Check cd- function - 
+* @directory - a pointer to a line
 
-#include <unistd.h>
-#include <stdlib.h>
+*A function that changes the current directory of the process
+*/
 
-int cd(char *path)
+void cd(char *directory)
 {
-    char *oldpwd; //a pointer to store the old working directory
-    char cwd[BUFSIZE]; //an array to store the current working directory
-
-    oldpwd = getenv("PWD"); //get the value of PWD and store it in oldpwd
-    if (chdir(path) == -1) //try to change the directory to path and check for errors
-    {
-        perror("chdir"); //print an error message if chdir fails
-        return (1); //return 1 to indicate failure
-    }
-    if (getcwd(cwd, BUFSIZE) == NULL) //try to get the current working directory and check for errors
-    {
-        perror("getcwd"); //print an error message if getcwd fails
-        return (1); //return 1 to indicate failure
-    }
-    if (setenv("PWD", cwd, 1) == -1) //try to set the value of PWD to cwd and check for errors
-    {
-        perror("setenv"); //print an error message if setenv fails
-        return (1); //return 1 to indicate failure
-    }
-    if (setenv("OLDPWD", oldpwd, 1) == -1) //try to set the value of OLDPWD to oldpwd and check for errors
-    {
-        perror("setenv"); //print an error message if setenv fails
-        return (1); //return 1 to indicate failure
-    }
-    return (0); //return 0 to indicate success
+if (directory == NULL)
+{
+directory = getenv("HOME");
+}
+else if (strcmp(directory, "-") == 0)
+{
+directory = getenv("OLDPWD");
+}
+    
+char *oldpwd = getcwd(NULL, 0);
+setenv("OLDPWD", oldpwd, 1);
+free(oldpwd);
+    
+if (chdir(directory) == 0)
+{
+char *pwd = getcwd(NULL, 0);
+setenv("PWD", pwd, 1);
+free(pwd);
+}
+    
+else
+{
+perror("cd");
+}
 }
 
 
@@ -214,36 +204,36 @@ extern char **environ; //declare the environ variable
 
 int execute(char *line)
 {
-    char **args;
-    char *path; 
+char **args;
+char *path; 
 
-    args = split_line(line); 
+args = split_line(line); 
 
-    if (strcmp(args[0], "cd") == 0) //compare the first argument with "cd"
+if (strcmp(args[0], "cd") == 0) 
 {
-    if (args[1] == NULL) //no second argument, use the home directory as default
-    {
-        char *home = getenv("HOME"); //get the value of HOME and store it in home
-        cd(home); //call cd with home as argument
-    }
-    else //second argument exists, use it as path
-    {
-        cd(args[1]); //call cd with args[1] as argument
-    }
+if (args[1] == NULL) 
+{
+char *home = getenv("HOME"); 
+cd(home); 
+}
+else 
+{
+cd(args[1]); 
+}
  
-return (1); //return 1 to continue looping
+return (1); 
  
 }
 
-else if (strcmp(args[0], "env") == 0) //compare the first argument with "env"
+else if (strcmp(args[0], "env") == 0) 
 {
-    int i = 0;
-    while (environ[i]) //loop through the environ array
-    {
-        printf("%s\n", environ[i]); //print each string in the form of "variable=value"
-        i++;
-    }
-    return (1); //return 1 to continue looping
+int i = 0;
+while (environ[i]) 
+{
+printf("%s\n", environ[i]); 
+i++;
+}
+return (1); 
 }
 }
 
