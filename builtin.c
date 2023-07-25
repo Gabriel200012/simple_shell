@@ -169,74 +169,8 @@ return NULL;
 * Return 0 if exit is found, otherwise return 1 
 */ //added this function
 
-int check_exit(char *line)
-{
-char **args;
-
-args = split_line(line);
-
-if (strcmp(args[0], "exit") == 0) //compare the first argument with "exit"
-{
-if (args[1] == NULL) //no second argument, exit with status 0
-{
-free(args);
-exit(0);
-}
-else //second argument exists, try to convert it to an integer and exit with that status
-{
-int status = atoi(args[1]);
-free(args);
-exit(status);
-}
-}
-
-free(args); //not exit, free args and return 1 to continue looping
-return (1);
-}
-
-
-
-/** Main -  Execute a line function
- *  @line - a pointer to a line
- *  Return the exit status of the child process
- */
-
-extern char **environ; //declare the environ variable
-
-int execute(char *line)
-{
-    char **args;
-    char *path; 
-
-    args = split_line(line); 
-
-    if (strcmp(args[0], "cd") == 0) //compare the first argument with "cd"
-{
-    if (args[1] == NULL) //no second argument, use the home directory as default
-    {
-        char *home = getenv("HOME"); //get the value of HOME and store it in home
-        cd(home); //call cd with home as argument
-    }
-    else //second argument exists, use it as path
-    {
-        cd(args[1]); //call cd with args[1] as argument
-    }
-    return (1); //return 1 to continue looping
-}
-else if (strcmp(args[0], "env") == 0) //compare the first argument with "env"
-{
-    int i = 0;
-    while (environ[i]) //loop through the environ array
-    {
-        printf("%s\n", environ[i]); //print each string in the form of "variable=value"
-        i++;
-    }
-    return (1); //return 1 to continue looping
-}
-
-}
-
-
+#include <unistd.h>
+#include <stdlib.h>
 
 int cd(char *path)
 {
@@ -266,3 +200,51 @@ int cd(char *path)
     }
     return (0); //return 0 to indicate success
 }
+
+
+
+
+
+/** Main -  Execute a line function
+ *  @line - a pointer to a line
+ *  Return the exit status of the child process
+ */
+
+extern char **environ; //declare the environ variable
+
+int execute(char *line)
+{
+    char **args;
+    char *path; 
+
+    args = split_line(line); 
+
+    if (strcmp(args[0], "cd") == 0) //compare the first argument with "cd"
+{
+    if (args[1] == NULL) //no second argument, use the home directory as default
+    {
+        char *home = getenv("HOME"); //get the value of HOME and store it in home
+        cd(home); //call cd with home as argument
+    }
+    else //second argument exists, use it as path
+    {
+        cd(args[1]); //call cd with args[1] as argument
+    }
+ 
+return (1); //return 1 to continue looping
+ 
+}
+
+else if (strcmp(args[0], "env") == 0) //compare the first argument with "env"
+{
+    int i = 0;
+    while (environ[i]) //loop through the environ array
+    {
+        printf("%s\n", environ[i]); //print each string in the form of "variable=value"
+        i++;
+    }
+    return (1); //return 1 to continue looping
+}
+}
+
+
