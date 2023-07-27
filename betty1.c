@@ -1,9 +1,6 @@
 #include "shell.h"
 
-/* Function prototypes */
-void loop(void);
-char *read_line(void);
-int execute(char *line);
+
 
 /* Main function */
 int main(int argc, char **argv)
@@ -33,7 +30,7 @@ void loop(void)
         line = read_line();
 
         /* Execute the line */
-        status = execute(line);
+        status = execute(&line);
 
         /* Free the line */
         free(line);
@@ -70,14 +67,14 @@ char *read_line(void)
 }
 
 /* Execute a line function */
-int execute(char *line)
+int execute(char **line)
 {
     pid_t pid;
     int status;
     char *args[2];
 
     /* Split the line into two arguments: the program name and NULL */
-    args[0] = strtok(line, " \t\r\n\a");
+    args[0] = strtok(*line, " \t\r\n\a");
     args[1] = NULL;
 
     /* If the line is empty or a comment, do nothing */
