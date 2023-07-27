@@ -1,6 +1,9 @@
 #ifndef _SHELL_H_
 #define _SHELL_H_
 #define _GNU_SOURCE
+#ifndef BUILTIN_H
+#define BUILTIN_H
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +23,13 @@
 #define PATH_SEPARATOR ":"
 #define PROMPT "$ "
 #define MAX_TOKENS 1024
-#define BUFFER_SIZE 1024
+#define BUFSIZE 1024
+#define DELIM " \t\r\n\a"
+#define BUILTIN_H
+#define MAX_ARGS 64 
+
+
+
 
 /* prompt.c */
 void prompt(void);
@@ -30,6 +39,12 @@ char *get_input(void);
 void free_last_input(void);
 /* get_line.c*/
 void *get_line(void);
+
+/* Function prototypes */
+void loop(void);
+char *read_line(void);
+char **split_line(char *line);
+
 
 /* built-in funcs */
 int check_for_builtin(char **args);
@@ -48,8 +63,7 @@ void handle_sigquit(int sig);
 void handle_sigstp(int sig);
 
 /* execute.c */
-int execute(char *line);
-
+int execute(char **line);
 /* parser.c */
 char **tokenize(char *str, const char *delim);
 char **tokenize_input(char *input);
@@ -92,4 +106,7 @@ char *_memset(char *, char, unsigned int);
 char *_memcpy(char *dest, char *src, unsigned int n);
 void *_realloc(void *, unsigned int, unsigned int);
 void *_calloc(unsigned int nmemb, unsigned int size);
+
+#endif /* _SHELL_H_ */
 #endif
+
