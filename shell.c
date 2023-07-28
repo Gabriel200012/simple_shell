@@ -1,71 +1,38 @@
+#include "shell.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-int main() {
-    char *command;
-    char *path;
-    size_t bufsize = 32;
-    ssize_t nread;
 
-    while (1) {
-        printf("$ ");
-        command = (char *)malloc(bufsize * sizeof(char));
-        if (command == NULL) {
-            perror("malloc error");
-            exit(EXIT_FAILURE);
-        }
+/* Main function */
+int main(int argc, char **argv)
+{
+    /* Ignore the arguments */
+    (void)argc;
+    (void)argv;
 
-        nread = getline(&command, &bufsize, stdin); // Read user input
+    /* Start the main loop */
+    loop();
 
-        if (nread == -1) {  // Handle EOF (Ctrl+D)
-            printf("\n");
-            break;
-        }
-        if (nread > 0 && command[nread-1] == '\n') {
-            command[nread-1] = '\0';  // Remove trailing newline
-        }
+    /* Exit successfully */
+    return (0);
+}
 
-        path = getenv("PATH"); // Get the PATH variable
-        char *token, *prev, *path_copy;
-        path_copy = strdup(path);
+/* Main loop function */
+void loop(void)
+{
+    char *line;
+    int status;
 
-        token = strtok_r(path_copy, ":", &prev);
-        while (token != NULL) { // Iterate over PATH directories
-            char *command_path = (char *)malloc((strlen(token) + strlen(command) + 2) * sizeof(char)); // Allocate memory for the path to the executable
-            if (command_path == NULL) {
-                perror("malloc error");
-                exit(EXIT_FAILURE);
-            }
+    do {
+        /* Print the prompt */
+        printf(PROMPT);
 
-            sprintf(command_path, "%s/%s", token, command); // Construct the path to the executable
-            if (access(command_path, X_OK) == 0) { // Check if the executable exists and is executable
-                pid_t pid = fork();
-                if (pid < 0) {
-                    perror("fork error");
-                    exit(EXIT_FAILURE);
-                }
-                else if (pid == 0) { // Child process
-                    execve(command_path, NULL, environ); // Execute the command
-                    perror("execve error");
-                    free(command_path);
-                    exit(EXIT_FAILURE);
-                }
-                else { // Parent process
-                    wait(NULL); // Wait for the child process to complete
-                    free(command_path);
-                    break; // Stop iterating over PATH directories once the executable is found and executed
-                }
-            }
+        /* Read a line from stdin */
+        line = read_line();
 
-            free(command_path);
-            token = strtok_r(NULL, ":", &prev);
-        }
+        /* Execute the line */
+        status = execute(&line);
 
-        free(command);
-        free(path_copy);
-    }
-
-    return 0;
+        /* Free the line */
+        free(line);
+} while (status); /* Repeat until status is zero */
 }
