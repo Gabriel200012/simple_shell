@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 /**
  * struct bst_node - A node of a binary search tree
  * @data: The data stored in the node
