@@ -17,6 +17,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include "environ.h"
+
 
 /*macros*/
 #define PATH_MAX_LENGTH 4096
