@@ -1,38 +1,43 @@
 #include "shell.h"
 
+/**
+   create the main functiom
+   @argc-
+   @argv-
+   loop the main function and print and prompt
+ */
 
 
-/* Main function */
 int main(int argc, char **argv)
 {
-    /* Ignore the arguments */
-    (void)argc;
-    (void)argv;
+(void)argc;
+(void)argv;
 
-    /* Start the main loop */
-    loop();
+loop();
 
-    /* Exit successfully */
-    return (0);
+    
+return (0);
 }
 
-/* Main loop function */
+
 void loop(void)
 {
-    char *line;
-    int status;
+char *line;
+int status;
 
-    do {
+do
+{
         /* Print the prompt */
-        printf(PROMPT);
+printf(PROMPT);
 
         /* Read a line from stdin */
-        line = read_line();
+ line = read_line();
 
         /* Execute the line */
-        status = execute(&line);
+ status = execute(&line);
 
         /* Free the line */
-        free(line);
-} while (status); /* Repeat until status is zero */
+free(line);
+}
+while (status); /* Repeat until status is zero */
 }
